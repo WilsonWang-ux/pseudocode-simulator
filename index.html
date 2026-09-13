@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IGCSE Pseudocode Simulator</title>
+    <style>
+        .container{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px;}
+        textarea{width:100%;height:300px;font-family:monospace;font-size:14px;}
+        .var-table{border:1px solid #999;padding:10px;min-height:100px;}
+        #output{background:#111;color:#0f0;padding:10px;height:200px;white-space:pre-wrap;font-family:monospace;}
+        button{padding:8px 16px;margin:4px;cursor:pointer;}
+    </style>
+</head>
+<body>
+    <h1>IGCSE Pseudocode Simulator</h1>
+    <div class="container">
+        <div>
+            <h3>Pseudocode Input</h3>
+            <textarea id="codeArea">
+a ← 10
+IF a > 5 THEN
+    OUTPUT("Big")
+ELSE
+    OUTPUT("Small")
+ENDIF
+            </textarea>
+            <br>
+            <button onclick="runCode()">Run</button>
+            <button onclick="stepCode()">Step (单步)</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+        <div>
+            <h3>Variables</h3>
+            <div class="var-table" id="varBox"></div>
+            <h3>Console Output</h3>
+            <div id="output"></div>
+        </div>
+    </div>
+<script>
+let variables = {};
+let pc = 0;
+let lines = [];
+
+function reset(){
+    variables = {};
+    pc = 0;
+    lines = document.getElementById("codeArea").value.split("\n");
+    renderVars();
+    document.getElementById("output").innerText = "";
+}
+
+function renderVars(){
+    let html = "";
+    for(let name in variables){
+        html += `<p>${name} = ${variables[name]}</p >`;
+    }
+    document.getElementById("varBox").innerHTML = html;
+}
+
+function stepCode(){
+    if(pc >= lines.length) return;
+    let line = lines[pc].trim();
+    pc++;
+    if(line.includes("←")){
+        let [varName, valueStr] = line.split("←");
+        let val = eval(valueStr.trim());
+        variables[varName.trim()] = val;
+    }
+    if(line.startsWith("OUTPUT")){
+        let txt = line.match(/OUTPUT\("(.*)"\)/)[1];
+        document.getElementById("output").innerText += txt + "\n";
+    }
+    renderVars();
+}
+
+function runCode(){
+    reset();
+    while(pc < lines.length){
+        stepCode();
+    }
+}
+</script>
+</body>
+</html>
