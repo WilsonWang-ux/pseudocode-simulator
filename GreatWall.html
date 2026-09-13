@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IGCSE Pseudocode Simulator</title>
+    <style>
+                *{
+            box-sizing: border-box;
+        }
+        body{
+            /* 深色底色，暗青黑，国风科技底色 */
+            background: #0b1018;
+            /* 长城背景图，半透明叠加 */
+            background-image: url("https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            color:#e2e8f0;
+            font-family: 'Segoe UI',sans-serif;
+            padding:24px;
+            margin:0;
+        }
+        body::before{
+            /* 黑色遮罩，压低背景亮度，保证文字看得清！很关键 */
+            content:"";
+            position:fixed;
+            inset:0;
+            background:rgba(8,12,20,0.75);
+            z-index:-1;
+        }
+        h1{
+            text-align:center;
+            color:#72d4ff;
+            text-shadow: 0 0 12px #2194d8;
+            letter-spacing:2px;
+        }
+        .container{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+            padding:20px;
+            max-width:1400px;
+            margin:0 auto;
+        }
+        textarea{
+            width:100%;
+            height:300px;
+            font-family:monospace;
+            font-size:14px;
+            background:rgba(20,30,48,0.75);
+            border:1px solid #3474b8;
+            color:#9cf0ff;
+            border-radius:8px;
+            padding:12px;
+            box-shadow: 0 0 8px #18427066;
+        }
+        .var-table{
+            border:1px solid #3474b8;
+            padding:10px;
+            min-height:100px;
+            background:rgba(20,30,48,0.75);
+            border-radius:8px;
+            color:#b6e8ff;
+            box-shadow: 0 0 8px #18427066;
+        }
+        #output{
+            background:#111;
+            color:#0f0;
+            padding:10px;
+            height:200px;
+            white-space:pre-wrap;
+            font-family:monospace;
+            border:1px solid #227733;
+            border-radius:8px;
+            box-shadow:0 0 8px #00992255;
+        }
+        button{
+            padding:8px 16px;
+            margin:4px;
+            cursor:pointer;
+            background:#1a4b82;
+            color:#eaf7ff;
+            border:1px solid #50a2e8;
+            border-radius:6px;
+            transition: 0.2s;
+        }
+        button:hover{
+            background:#2871b9;
+            box-shadow:0 0 10px #3b98e9;
+        }
+    </style>
+</head>
+<body>
+    <h1>IGCSE Pseudocode Simulator</h1>
+    <div class="container">
+        <div>
+            <h3>Pseudocode Input</h3>
+            <textarea id="codeArea">
+a ← 10
+IF a > 5 THEN
+    OUTPUT("Big")
+ELSE
+    OUTPUT("Small")
+ENDIF
+            </textarea>
+            <br>
+            <button onclick="runCode()">Run</button>
+            <button onclick="stepCode()">Step (单步)</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+        <div>
+            <h3>Variables</h3>
+            <div class="var-table" id="varBox"></div>
+            <h3>Console Output</h3>
+            <div id="output"></div>
+        </div>
+    </div>
+<script>
+let variables = {};
+let pc = 0;
+let lines = [];
+
+function reset(){
+    variables = {};
+    pc = 0;
+    lines = document.getElementById("codeArea").value.split("\n");
+    renderVars();
+    document.getElementById("output").innerText = "";
+}
+
+function renderVars(){
+    let html = "";
+    for(let name in variables){
+        html += `<p>${name} = ${variables[name]}</p >`;
+    }
+    document.getElementById("varBox").innerHTML = html;
+}
+
+function stepCode(){
+    if(pc >= lines.length) return;
+    let line = lines[pc].trim();
+    pc++;
+    if(line.includes("←")){
+        let [varName, valueStr] = line.split("←");
+        let val = eval(valueStr.trim());
+        variables[varName.trim()] = val;
+    }
+    if(line.startsWith("OUTPUT")){
+        let txt = line.match(/OUTPUT\("(.*)"\)/)[1];
+        document.getElementById("output").innerText += txt + "\n";
+    }
+    renderVars();
+}
+
+function runCode(){
+    reset();
+    while(pc < lines.length){
+        stepCode();
+    }
+}
+</script>
+</body>
+</html>
