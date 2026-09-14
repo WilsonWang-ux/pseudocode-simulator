@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IGCSE Pseudocode Simulator</title>
+    <style>
+        .container{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+            padding:20px;
+        }
+        textarea{
+            width:100%;
+            height:300px;
+            font-family:monospace;
+            font-size:14px;
+        }
+        .var-table{
+            border:1px solid #999;
+            padding:10px;
+            min-height:100px;
+        }
+        #output{
+            background:#111;
+            color:#0f0;
+            padding:10px;
+            height:200px;
+            white-space:pre-wrap;
+            font-family:monospace;
+        }
+        button{
+            padding:8px 16px;
+            margin:4px;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>IGCSE Pseudocode Simulator</h1>
+    <div class="container">
+        <div>
+            <h3>Pseudocode Input</h3>
+<textarea id="codeArea">
+a ← 10
+IF a > 5 THEN
+    OUTPUT("Big")
+ELSE
+    OUTPUT("Small")
+ENDIF
+</textarea>
+            <br>
+            <button onclick="runCode()">Run</button>
+            <button onclick="stepCode()">Step (单步)</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+        <div>
+            <h3>Variables</h3>
+            <div class="var-table" id="varBox"></div>
+            <h3>Console Output</h3>
+            <div id="output"></div>
+        </div>
+    </div>
+<script>
+let variables = {};
+let pc = 0;
+let lines = [];
+function reset(){
+    variables = {};
+    pc = 0;
+    lines = document.getElementById("codeArea").value.split("\n");
+    document.getElementById("output").innerText = "";
+    renderVars();
+}
+function renderVars(){
+    let html = "";
+    for(let name in variables){
+        html += `${name}: ${variables[name]}<br>`;
+    }
+    document.getElementById("varBox").innerHTML = html;
+}
+function stepCode(){
+  if(pc >= lines.length) return;
+  let line = lines[pc].trim();
+  pc++; // 默认顺序执行，下一行+1
+  // 1. 变量赋值 A ← value
+  if(line.includes("←")){
+    let [varName, valueStr] = line.split("←");
+    let val = eval(valueStr.trim());
+    variables[varName.trim()] = val;
+    renderVars();
+    return;
+  }
+  // 2. OUTPUT 输出
+  if(line.startsWith("OUTPUT")){
+    let txt = line.match(/OUTPUT\((.+)\)/)[1];
+    let result = eval(txt);
+    document.getElementById("output").innerText += result + "\n";
+    renderVars();
+    return;
+  }
+    // 3. IF 条件 THEN（IGCSE标准，支持有无括号两种写法）
+  if(line.startsWith("IF ")){
+    let condStr = line.match(/IF\s*(.*?) THEN/)[1];
+    let condResult = eval(condStr.trim());
+    if(!condResult){
+      // 条件不成立：跳到 ELSE 或者 ENDIF
+      pc = findMatchingElseOrEndIf(pc);
+    }
+    renderVars();
+    return;
+  }
+  // 4. ELSE 分支
+  if(line === "ELSE"){
+    // ELSE执行完，需要跳到ENDIF后面
+    pc = findMatchingEndIf(pc);
+    renderVars();
+    return;
+  }
+  // 5. ENDIF / END IF 结束IF块（兼容IGCSE两种写法）
+  if(line === "ENDIF" || line === "END IF"){
+    renderVars();
+    return;
+  }
+    // 6. WHILE 条件 THEN（IGCSE标准，支持有无括号两种写法）
+  if(line.startsWith("WHILE ")){
+    let condStr = line.match(/WHILE\s*(.*?) THEN/)[1];
+    let condResult = eval(condStr.trim());
+    if(!condResult){
+      // 条件false，跳出循环，跳到ENDWHILE下一行
+      pc = findMatchingEndWhile(pc);
+    }
+    renderVars();
+    return;
+  }
+  // 7. ENDWHILE / END WHILE 循环结尾
+  if(line === "ENDWHILE" || line === "END WHILE"){
+    pc = findMatchingWhileStart(pc);
+    renderVars();
+    return;
+  }
+}
+// 查找：找到匹配的ELSE或者ENDIF（修复嵌套IF深度计数）
+function findMatchingElseOrEndIf(startPc){
+  let depth = 1;
+  for(let i = startPc; i < lines.length; i++){
+    let l = lines[i].trim();
+    if(l.startsWith("IF(")) depth++;
+    if(l === "ELSE" && depth === 1){
+      return i+1;
+    }
+    if((l === "ENDIF" || l === "END IF")){
+      depth--;
+      if(depth === 0){
+        return i+1;
+      }
+    }
+  }
+  return lines.length;
+}
+// 查找匹配 END IF / ENDIF
+function findMatchingEndIf(startPc){
+  let depth = 1;
+  for(let i = startPc; i < lines.length; i++){
+    let l = lines[i].trim();
+    if(l.startsWith("IF(")) depth++;
+    if(l === "ENDIF" || l === "END IF"){
+      depth--;
+      if(depth === 0){
+        return i + 1;
+      }
+    }
+  }
+  return lines.length;
+}
+// 查找匹配 END WHILE / ENDWHILE
+function findMatchingEndWhile(startPc){
+  let depth = 1;
+  for(let i = startPc; i < lines.length; i++){
+    let l = lines[i].trim();
+    if(l.startsWith("WHILE(")) depth++;
+    if(l === "ENDWHILE" || l === "END WHILE"){
+      depth--;
+      if(depth === 0){
+        return i + 1;
+      }
+    }
+  }
+  return lines.length;
+}
+// 反向查找对应的 WHILE 起始行
+function findMatchingWhileStart(endPc){
+  let depth = 1;
+  for(let i = endPc - 1; i >= 0; i--){
+    let l = lines[i].trim();
+    if(l === "ENDWHILE" || l === "END WHILE") depth++;
+    if(l.startsWith("WHILE(")){
+      depth--;
+      if(depth === 0){
+        return i;
+      }
+    }
+  }
+  return lines.length;
+}
+function runCode(){
+  reset();
+  while(pc < lines.length){
+    stepCode();
+  }
+}
+</script>
+</body>
+</html>
