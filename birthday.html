@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 16th Birthday Wilson</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 16px;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .sub-title {
+            font-size: 1.6rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            animation: fadeIn 3s ease-in-out;
+        }
+        .message {
+            max-width: 700px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            padding: 30px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 4s ease-in-out;
+        }
+        .birthday-number{
+            font-size: 6rem;
+            font-weight: bold;
+            color:#ffd700;
+            margin:20px 0;
+            animation: pulse 2.5s infinite;
+        }
+        @keyframes fadeIn {
+            from {opacity:0; transform: translateY(20px);}
+            to {opacity:1; transform: translateY(0);}
+        }
+        @keyframes pulse {
+            0% {transform: scale(1);}
+            50% {transform: scale(1.05);}
+            100% {transform: scale(1);}
+        }
+        .footer{
+            margin-top:50px;
+            opacity:0.6;
+            font-size:0.9rem;
+        }
+        /* 星星点缀 */
+        .star {
+            position:absolute;
+            background:#fff;
+            border-radius:50%;
+            animation: twinkle 3s infinite;
+        }
+        @keyframes twinkle {
+            0%,100% {opacity:0.2;}
+            50% {opacity:1;}
+        }
+    </style>
+</head>
+<body>
+    <div class="star" style="width:3px;height:3px;top:10%;left:15%;"></div>
+    <div class="star" style="width:2px;height:2px;top:25%;left:80%;animation-delay:0.5s;"></div>
+    <div class="star" style="width:4px;height:4px;top:70%;left:10%;animation-delay:1s;"></div>
+    <div class="star" style="width:2px;height:2px;top:85%;left:90%;animation-delay:1.5s;"></div>
+    <div class="star" style="width:3px;height:3px;top:40%;left:5%;animation-delay:2s;"></div>
+
+    <h1>王朝 Wilson</h1>
+    <div class="sub-title">Happy 16th Birthday</div>
+    <div class="birthday-number">16</div>
+    <div class="message">
+        十六岁，崭新的篇章。<br>
+        愿代码、理想与热爱一路相伴，<br>
+        保持自信，奔赴所有目标。<br>
+        前路漫漫，万事尽可期待。🎂
+    </div>
+    <div class="footer">
+        Made as a birthday gift for Wilson
+    </div>
+
+<script>
+// 随机生成更多星星
+function createStar(){
+    const star = document.createElement('div');
+    star.classList.add('star');
+    const size = Math.random()*3+1;
+    star.style.width = size+'px';
+    star.style.height = size+'px';
+    star.style.top = Math.random()*100+'%';
+    star.style.left = Math.random()*100+'%';
+    star.style.animationDelay = Math.random()*3+'s';
+    document.body.appendChild(star);
+}
+for(let i=0;i<60;i++) createStar();
+</script>
+</body>
+</html>
