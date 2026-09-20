@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 16th Birthday Wilson</title>
+    <!-- Supabase CDN 必须放在最前面 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui, sans-serif;}
+        body{
+            background: #cce7f8;
+            background-image:url('https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1400');
+            background-size:cover;
+            background-position:center;
+            background-attachment:fixed;
+            min-height:100vh;
+            padding:30px 15px;
+        }
+        canvas#fireworksCanvas{
+            position:fixed;
+            top:0;
+            left:0;
+            width:100vw;
+            height:100vh;
+            pointer-events:none;
+            z-index:2;
+        }
+        .container{
+            position:relative;
+            z-index:3;
+            max-width:650px;
+            margin:0 auto;
+        }
+        .header-card{
+            background:rgba(255,255,255,0.88);
+            padding:25px;
+            border-radius:20px;
+            text-align:center;
+            margin-bottom:20px;
+        }
+        .header-card h1{
+            color:#993380;
+            font-size:36px;
+            margin-bottom:10px;
+        }
+        .header-card p{
+            color:#555;
+            font-size:17px;
+        }
+        .card{
+            background:rgba(255,255,255,0.88);
+            padding:25px;
+            border-radius:20px;
+        }
+        h3{
+            text-align:center;
+            margin-bottom:15px;
+            color:#b05488;
+        }
+        #msgInput{
+            width:100%;
+            min-height:90px;
+            padding:12px;
+            border:2px solid #f2c9e0;
+            border-radius:12px;
+            font-size:16px;
+            resize:vertical;
+        }
+        button{
+            display:block;
+            margin:14px auto 0;
+            padding:10px 24px;
+            border:none;
+            background:#b05488;
+            color:white;
+            border-radius:10px;
+            font-size:16px;
+            cursor:pointer;
+        }
+        button:hover{
+            background:#993380;
+        }
+        #messageList{
+            margin-top:20px;
+            max-height:300px;
+            overflow-y:auto;
+        }
+        .msg-item{
+            background:#f8e8f2;
+            padding:10px 14px;
+            border-radius:10px;
+            margin-bottom:8px;
+        }
+    </style>
+</head>
+<body>
+<canvas id="fireworksCanvas"></canvas>
+<div class="container">
+    <div class="header-card">
+        <h1>王朝 Wilson 🎂</h1>
+        <p>Happy 16th Birthday!</p>
+        <p style="margin-top:8px">欢迎来到我的生日小站，在这里写下你的生日祝福✨</p>
+    </div>
+    <div class="card">
+        <h3>匿名留言板</h3>
+        <textarea id="msgInput" placeholder="在这里写给Wilson的生日祝福..."></textarea>
+        <button onclick="submitMessage()">提交祝福</button>
+        <div id="messageList"></div>
+    </div>
+</div>
+
+<script>
+// ========== Supabase 配置信息 ==========
+const SUPABASE_URL = "https://zcywplytozkewddsqw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jMmI3b25xZHc0djNkY3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU0MDk0MDUsImV4cCI6MjA0MTA0NTQwNX0sImVjR1F6M1I2cjI1YjI1OElmOVdMMGExVjE4c2JId2UxMj0=";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ========== 提交祝福函数 ==========
+async function submitMessage(){
+  const content = document.getElementById("msgInput").value.trim();
+  if(!content){
+    alert("请输入祝福内容！");
+    return;
+  }
+  const { error } = await supabase
+    .from('birthday_messages')
+    .insert({ content: content })
+
+  if(error){
+    alert("提交失败：" + error.message);
+    console.log(error);
+  }else{
+    alert("🎉 祝福提交成功！");
+    document.getElementById("msgInput").value = "";
+    loadMessages();
+  }
+}
+
+// ========== 读取所有留言 ==========
+async function loadMessages(){
+  const {data, error} = await supabase
+    .from('birthday_messages')
+    .select('content, created_at')
+    .order('created_at', {ascending:false})
+  if(error){
+    console.log(error);
+    return;
+  }
+  const msgBox = document.getElementById("messageList");
+  msgBox.innerHTML = "";
+  data.forEach(item=>{
+    msgBox.innerHTML += `<div class="msg-item">${item.content}</div>`
+  })
+}
+window.onload = loadMessages;
+
+// ========== 烟花特效代码 ==========
+const canvas = document.getElementById('fireworksCanvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle{
+    constructor(x,y,color){
+        this.x = x;this.y = y;
+        this.speed = Math.random()*5+2;
+        this.angle = Math.random()*Math.PI*2;
+        this.gravity = 0.08;
+        this.vx = Math.cos(this.angle)*this.speed;
+        this.vy = Math.sin(this.angle)*this.speed;
+        this.alpha = 1;
+        this.decay = Math.random()*0.015+0.005;
+        this.color = color;
+    }
+    update(){
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += this.gravity;
+        this.alpha -= this.decay;
+    }
+    draw(){
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,2,0,Math.PI*2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.restore();
+    }
+}
+let particles = [];
+function createFirework(x,y){
+    const colors = ['#ff3838','#ffd32a','#33ff33','#33ccff','#ff66cc'];
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    for(let i=0;i<80;i++){
+        particles.push(new Particle(x,y,color));
+    }
+}
+function animate(){
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(let i=particles.length-1;i>=0;i--){
+        particles[i].update();
+        particles[i].draw();
+        if(particles[i].alpha <=0){
+            particles.splice(i,1);
+        }
+    }
+    requestAnimationFrame(animate);
+}
+animate();
+// 页面打开自动放一次烟花
+setTimeout(()=>{
+    createFirework(canvas.width/2, canvas.height*0.35);
+}, 300);
+// 点击页面任意位置燃放烟花
+document.addEventListener('click',(e)=>{
+    createFirework(e.clientX,e.clientY);
+})
+</script>
+</body>
+</html>
