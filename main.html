@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wilson王朝 · 16岁生日快乐</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:system-ui, sans-serif;
+        }
+        body{
+            min-height:100vh;
+            background: linear-gradient(135deg, #b8dfff, #ffc8e0);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.35'%3E%3Cpath d='M196 150c18 0 32 14 32 32s-14 32-32 32-32-14-32-32 14-32 32-32zm-70 20c10 0 18 8 18 18s-8 18-18 18-18-8-18-18 8-18 18-18zm140 0c10 0 18 8 18 18s-8 18-18 18-18-8-18-18 8-18 18-18zM120 270c14 0 25 11 25 25s-11 25-25 25-25-11-25-25 11-25 25-25zm160 0c14 0 25 11 25 25s-11 25-25 25-25-11-25-25 11-25 25-25z'%3E%3C/path%3E%3Cpath d='M200 220c22 0 40 18 40 40s-18 40-40 40-40-18-40-40 18-40 40-40z'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            overflow:hidden;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            text-align:center;
+            color:white;
+            padding:20px;
+        }
+        .container{
+            z-index:2;
+        }
+        .title-1{
+            font-size: clamp(2.2rem,6vw,4rem);
+            color:#fff;
+            font-weight:bold;
+            margin-bottom:12px;
+        }
+        .birthday-text{
+            font-size: clamp(2.5rem,7vw,5rem);
+            font-weight:bold;
+            background: linear-gradient(90deg,#ffd700,#fff8a0,#ffd700);
+            -webkit-background-clip:text;
+            background-clip:text;
+            color:transparent;
+            text-shadow: 0 0 12px #ffd700, 0 0 24px #ffc107;
+            margin:10px 0;
+        }
+        .date{
+            font-size: clamp(1.3rem,3vw,2rem);
+            margin-bottom:30px;
+        }
+        .bless{
+            font-size: clamp(1.1rem,2.5vw,1.8rem);
+            line-height:2.2;
+        }
+        /*气球样式+漂浮动画*/
+        .balloon{
+            position:absolute;
+            width:70px;
+            height:90px;
+            border-radius:50% 50% 50% 50%;
+            animation: float 12s infinite ease-in-out;
+        }
+        .balloon::after{
+            content:"";
+            position:absolute;
+            width:1px;
+            height:70px;
+            background:#fff;
+            left:50%;
+            top:90px;
+            transform:translateX(-50%);
+        }
+        .b-pink{
+            background:#ff9fc8;
+            left:10%;
+            animation-delay:0s;
+        }
+        .b-blue{
+            background:#73b8ff;
+            left:25%;
+            animation-delay:1.5s;
+        }
+        .b-pink2{
+            background:#ffb2d4;
+            right:15%;
+            animation-delay:3s;
+        }
+        .b-blue2{
+            background:#8bc4ff;
+            right:28%;
+            animation-delay:4.5s;
+        }
+        .b-pink3{
+            background:#ff8fbd;
+            left:45%;
+            animation-delay:2s;
+        }
+        @keyframes float{
+            0%{
+                transform: translateY(100vh) rotate(-6deg);
+                opacity:0.8;
+            }
+            50%{
+                transform: translateY(-20vh) rotate(6deg);
+            }
+            100%{
+                transform: translateY(-120vh) rotate(-4deg);
+                opacity:0;
+            }
+        }
+        .spark{
+            position:absolute;
+            pointer-events:none;
+            width:10px;
+            height:10px;
+            background:#ffd700;
+            border-radius:50%;
+            animation: sparkle 0.8s forwards;
+        }
+        @keyframes sparkle{
+            0%{transform:scale(1);opacity:1;}
+            100%{transform:scale(0);opacity:0;}
+        }
+    </style>
+</head>
+<body>
+    <!--漂浮气球-->
+    <div class="balloon b-pink"></div>
+    <div class="balloon b-blue"></div>
+    <div class="balloon b-pink2"></div>
+    <div class="balloon b-blue2"></div>
+    <div class="balloon b-pink3"></div>
+
+    <div class="container">
+        <h1 class="title-1">Wilson 王朝</h1>
+        <h2 class="birthday-text">16岁生日快乐</h2>
+        <div class="date">9月26号</div>
+        <div class="bless">
+            天道酬勤<br>
+            要爱自己<br>
+            世界和平<br>
+            以后皆是坦途
+        </div>
+    </div>
+
+    <script>
+        //点击页面生成金色小星星
+        document.body.addEventListener('click',function(e){
+            const s = document.createElement('div');
+            s.classList.add('spark');
+            s.style.left = e.clientX + 'px';
+            s.style.top = e.clientY + 'px';
+            document.body.appendChild(s);
+            setTimeout(()=>s.remove(),800);
+        })
+    </script>
+</body>
